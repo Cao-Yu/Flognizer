@@ -84,11 +84,11 @@ public class Singleton {
 
         ContentValues cv = new ContentValues();
 
-        File f = new File(path + "/SimpleDataSet");
-        if (f.exists() && f.isDirectory()){
-            Log.v("fuck", "delete: " + f.getPath() +
-                    "result: " + f.delete());
-        }
+//        File f = new File(path + "/SimpleDataSet");
+//        if (f.exists() && f.isDirectory()){
+//            Log.v("fuck", "delete: " + f.getPath() +
+//                    "result: " + f.delete());
+//        }
 
         String realPath = path + FOLDER_NAME +
                 folder + "/image_";
