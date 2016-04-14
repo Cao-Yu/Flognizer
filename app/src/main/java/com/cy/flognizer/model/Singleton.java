@@ -84,11 +84,43 @@ public class Singleton {
 
         ContentValues cv = new ContentValues();
 
-//        File f = new File(path + "/SimpleDataSet");
-//        if (f.exists() && f.isDirectory()){
-//            Log.v("fuck", "delete: " + f.getPath() +
-//                    "result: " + f.delete());
-//        }
+        String realPath = path + FOLDER_NAME +
+                folder + "/image_";
+
+        String extension = ".jpg";
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        for(int i = 0; i < 5; i++) {
+
+            //To convert the bitmap to binary strings
+            Bitmap bitmap =
+                    BitmapFactory.decodeFile(
+                            realPath + ids[i] + extension);
+
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] binaryBitmap = baos.toByteArray();
+
+            cv.put("bitmap", binaryBitmap);
+
+            try {
+                baos.flush();
+                // clean
+                baos.reset();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            sqldb.insert(name, null, cv);
+        }
+        sqldb.close();
+    }
+
+    private void recgLoop(String name, String[] ids, String folder){
+
+        sqldb = database.getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
 
         String realPath = path + FOLDER_NAME +
                 folder + "/image_";

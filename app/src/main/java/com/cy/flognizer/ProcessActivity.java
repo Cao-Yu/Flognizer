@@ -252,7 +252,8 @@ public class ProcessActivity extends ActionBarActivity {
 //                sobel();
 //                return true;
             case R.id.menu_register:
-                  grabCut(imgToGrab);
+                getColor();
+//                  grabCut(imgToGrab);
 //                register(img);
 //                Flower flw = new Flower(this.img, "ref");
 //                Flower flw2 = singleton.getFlower("daisy", 1);
@@ -264,16 +265,29 @@ public class ProcessActivity extends ActionBarActivity {
                 double mean = 500;
                 String result = new String();
 
-                // white
-                if (getColor() == 0){
-                    result = matchAllRef(flower, "daisy") <
-                                    matchAllRef(flower, "wind") ?
-                                    "Daisy" : "Windflower";
-                // yellow
-                }else if (getColor() == 1){
-                    result = matchAllRef(flower, "daff") <
+                int color = getColor();
+
+                switch (color){
+                    case 0: result = matchAllRef(flower, "daisy") <
+                            matchAllRef(flower, "wind") ?
+                            "Daisy" : "Windflower";
+                        break;
+                    case 1: result = matchAllRef(flower, "daff") <
                             matchAllRef(flower, "sun") ?
                             "Daffodil" : "Sunflower";
+                        break;
+                    case 2: result = matchAllRef(flower, "daisy") <
+                            matchAllRef(flower, "wind") ?
+                            "Daisy" : "Windflower";
+                        break;
+                    case 3: result = matchAllRef(flower, "daisy") <
+                            matchAllRef(flower, "wind") ?
+                            "Daisy" : "Windflower";
+                        break;
+                    case 4: result = matchAllRef(flower, "daisy") <
+                            matchAllRef(flower, "wind") ?
+                            "Daisy" : "Windflower";
+                        break;
                 }
 
                 Toast.makeText(this, "This is a " + result,
@@ -445,13 +459,34 @@ public class ProcessActivity extends ActionBarActivity {
         Mat m = img.submat(w, w * 2, h, h * 2);
 
         Scalar chnn = Core.mean(m);
+        Log.v("fuck", "" + chnn.val[2]);
+        Log.v("fuck", "" + chnn.val[1]);
+        Log.v("fuck", "" + chnn.val[0]);
+
         if(chnn.val[2] * 2 < chnn.val[0] &&
                 chnn.val[2] * 2 < chnn.val[1]) {
             // Yellow
+//            Log.v("fuck", "yellow");
             return 1;
-        }else {
+        }else if (chnn.val[2] > 110 && chnn.val[1] > 160 &&
+                    chnn.val[0] > 160){
             // White
+//            Log.v("fuck", "white");
             return 0;
+        }else if (chnn.val[1] + 50 < chnn.val[2] &&
+                    chnn.val[1] + 30 < chnn.val[0]){
+            // pink
+//            Log.v("fuck", "pink");
+            return 2;
+        }else if (chnn.val[0] > 2 * chnn.val[1] - 10 &&
+                chnn.val[0] > 2 * chnn.val[2]){
+            //red
+//            Log.v("fuck", "red");
+            return 3;
+        }else {
+            // others color
+//            Log.v("fuck", "other");
+            return -1;
         }
     }
 
@@ -701,7 +736,7 @@ public class ProcessActivity extends ActionBarActivity {
         }
         mean /= 5;
         Log.v("fuck", "|*mean of good match is : " + mean + " *|");
-        Log.v("fuck", "|*totally time is : " + t + " *|");
+//        Log.v("fuck", "|*totally time is : " + t + " *|");
 //        Log.v("fuck", "|*mean of shape is : " + mean + " *|");
 
         return mean;
