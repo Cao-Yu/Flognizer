@@ -118,9 +118,8 @@ public class Singleton {
 
     private void recgLoop(String name, String[] ids, String folder){
 
-        sqldb = database.getWritableDatabase();
+        sqldb = database.getReadableDatabase();
 
-        ContentValues cv = new ContentValues();
 
         String realPath = path + FOLDER_NAME +
                 folder + "/image_";
@@ -139,8 +138,6 @@ public class Singleton {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] binaryBitmap = baos.toByteArray();
 
-            cv.put("bitmap", binaryBitmap);
-
             try {
                 baos.flush();
                 // clean
@@ -149,7 +146,6 @@ public class Singleton {
                 e.printStackTrace();
             }
 
-            sqldb.insert(name, null, cv);
         }
         sqldb.close();
     }

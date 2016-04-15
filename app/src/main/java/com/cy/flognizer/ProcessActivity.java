@@ -261,32 +261,56 @@ public class ProcessActivity extends ActionBarActivity {
                 return true;
             case R.id.menu_match:
                 Flower flower = new Flower(this.img, "test");
+                double[] mean = {0, 0, 0, 0};
                 double min = 500;
-                double mean = 500;
-                String result = new String();
+                double now = 500;
+                String result = "";
 
                 int color = getColor();
 
                 switch (color){
-                    case 0: result = matchAllRef(flower, "daisy") <
-                            matchAllRef(flower, "wind") ?
-                            "Daisy" : "Windflower";
+                    case 0:
+                        for(int i = 0; i < 4; i++) {
+                            now = matchAllRef(flower, Database.tabelNames[i]);
+                            if (now < min) {
+                                result = Database.tabelNames[i];
+                                min = now;
+                            }
+                        }
                         break;
-                    case 1: result = matchAllRef(flower, "daff") <
-                            matchAllRef(flower, "sun") ?
-                            "Daffodil" : "Sunflower";
+                    case 1:
+                        for(int i = 0; i < 4; i++) {
+                            now = matchAllRef(flower, Database.tabelNames[i + 4]);
+                            if (now < min) {
+                                result = Database.tabelNames[i + 4];
+                                min = now;
+                            }
+                        }
                         break;
-                    case 2: result = matchAllRef(flower, "daisy") <
-                            matchAllRef(flower, "wind") ?
-                            "Daisy" : "Windflower";
+                    case 2:
+                        for(int i = 0; i < 3; i++) {
+                            now = matchAllRef(flower, Database.tabelNames[i + 8]);
+                            if (now < min) {
+                                result = Database.tabelNames[i + 8];
+                                min = now;
+                            }
+                        }
                         break;
-                    case 3: result = matchAllRef(flower, "daisy") <
-                            matchAllRef(flower, "wind") ?
-                            "Daisy" : "Windflower";
+                    case 3:
+                        for(int i = 0; i < 3; i++) {
+                            now = matchAllRef(flower, Database.tabelNames[i + 11]);
+                            if (now < min) {
+                                result = Database.tabelNames[i + 11];
+                                min = now;
+                            }
+                        }
                         break;
-                    case 4: result = matchAllRef(flower, "daisy") <
-                            matchAllRef(flower, "wind") ?
-                            "Daisy" : "Windflower";
+                    case 4:
+                        Log.v("fuck", "other");
+//                        result = matchAllRef(flower, "daisy") <
+//                            matchAllRef(flower, "wind") ?
+//                            "Other" : "Other";
+                        result = "other";
                         break;
                 }
 
@@ -464,25 +488,25 @@ public class ProcessActivity extends ActionBarActivity {
         Log.v("fuck", "" + chnn.val[0]);
 
         if(chnn.val[2] * 2 < chnn.val[0] &&
-                chnn.val[2] * 2 < chnn.val[1]) {
+                chnn.val[2] * 2 + 10 < chnn.val[1]) {
             // Yellow
 //            Log.v("fuck", "yellow");
             return 1;
-        }else if (chnn.val[2] > 110 && chnn.val[1] > 160 &&
-                    chnn.val[0] > 160){
+        }else if (chnn.val[2] > 110 && chnn.val[1] > 138 &&
+                    chnn.val[0] > 140){
             // White
 //            Log.v("fuck", "white");
             return 0;
-        }else if (chnn.val[1] + 50 < chnn.val[2] &&
+        }else if (chnn.val[1] + 44 < chnn.val[2] &&
                     chnn.val[1] + 30 < chnn.val[0]){
             // pink
-//            Log.v("fuck", "pink");
-            return 2;
-        }else if (chnn.val[0] > 2 * chnn.val[1] - 10 &&
-                chnn.val[0] > 2 * chnn.val[2]){
+//            Log.v("fuck", "pink");j
+            return 3;
+        }else if (chnn.val[0] > 2 * chnn.val[1] - 37 &&
+                chnn.val[0] > 2 * chnn.val[2] - 21){
             //red
 //            Log.v("fuck", "red");
-            return 3;
+            return 2;
         }else {
             // others color
 //            Log.v("fuck", "other");
@@ -718,6 +742,7 @@ public class ProcessActivity extends ActionBarActivity {
 
     private double matchAllRef(Flower flower, String name) {
         Flower refFlower;
+
         double mean = 0;
         long t = 0;
         for(int i = 0; i < 5; i++){

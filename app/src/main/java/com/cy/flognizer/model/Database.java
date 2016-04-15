@@ -35,7 +35,7 @@ public class Database extends SQLiteOpenHelper{
     public static final String TABLE_NAME_HIBI  = "hibiscus";
     public static final String TABLE_NAME_PELAR = "pelargonium";
 
-    private static final String[] tabelNames = {
+    public static final String[] tabelNames = {
             TABLE_NAME_DAISY, TABLE_NAME_WIND,
             TABLE_NAME_LILY, TABLE_NAME_BUSH,
 
