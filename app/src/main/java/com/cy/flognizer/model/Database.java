@@ -16,14 +16,12 @@ public class Database extends SQLiteOpenHelper{
     // white
     public static final String TABLE_NAME_DAISY = "daisy";
     public static final String TABLE_NAME_WIND  = "wind";
-    public static final String TABLE_NAME_LILY  = "lily";
     public static final String TABLE_NAME_BUSH  = "silverbush";
 
     // yellow
     public static final String TABLE_NAME_DAFF  = "daff";
     public static final String TABLE_NAME_SUN   = "sun";
     public static final String TABLE_NAME_SUSAN = "susan";
-    public static final String TABLE_NAME_CUP   = "cup";
 
     // red
     public static final String TABLE_NAME_ANTH  = "anthurium";
@@ -37,10 +35,10 @@ public class Database extends SQLiteOpenHelper{
 
     public static final String[] tabelNames = {
             TABLE_NAME_DAISY, TABLE_NAME_WIND,
-            TABLE_NAME_LILY, TABLE_NAME_BUSH,
+            TABLE_NAME_BUSH,
 
             TABLE_NAME_DAFF, TABLE_NAME_SUN,
-            TABLE_NAME_SUSAN, TABLE_NAME_CUP,
+            TABLE_NAME_SUSAN,
 
             TABLE_NAME_ANTH, TABLE_NAME_BOI,
             TABLE_NAME_GERAN,

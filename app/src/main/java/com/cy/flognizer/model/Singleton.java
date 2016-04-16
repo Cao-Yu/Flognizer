@@ -158,13 +158,11 @@ public class Singleton {
 
         String[] daisy = {"0806", "0813", "0814", "0831", "0832"};
         String[] wind  = {"1204", "1206", "1213", "1214", "1217"};
-        String[] lily  = {"04905", "04906", "04907", "04909", "04940"};
         String[] bush  = {"06098", "06101", "06102", "06108", "06111"};
 
         String[] daff  = {"0005", "0006", "0014", "0021", "0024"};
         String[] sun   = {"0721", "0723", "0728", "0731", "0737"};
         String[] susan   = {"05849", "05850", "05853", "05861", "05873"};
-        String[] cup   = {"04625", "04626", "04628", "04629", "04632"};
 
         String[] anth   = {"01973", "01978", "01979", "01980", "01981"};
         String[] boi   = {"02759", "02763", "02776", "02781", "02799"};
@@ -176,13 +174,11 @@ public class Singleton {
 
         registLoop(database.TABLE_NAME_DAISY, daisy, DAISY);
         registLoop(database.TABLE_NAME_WIND, wind, WIND);
-        registLoop(database.TABLE_NAME_LILY, lily, LILY);
         registLoop(database.TABLE_NAME_BUSH, bush, BUSH);
 
         registLoop(database.TABLE_NAME_DAFF, daff, DAFF);
         registLoop(database.TABLE_NAME_SUN, sun, SUN);
         registLoop(database.TABLE_NAME_SUSAN, susan, SUSAN);
-        registLoop(database.TABLE_NAME_CUP, cup, CUP);
 
         registLoop(database.TABLE_NAME_ANTH, anth, ANTH);
         registLoop(database.TABLE_NAME_BOI, boi, BOI);

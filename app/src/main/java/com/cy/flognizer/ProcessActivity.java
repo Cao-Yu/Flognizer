@@ -270,7 +270,7 @@ public class ProcessActivity extends ActionBarActivity {
 
                 switch (color){
                     case 0:
-                        for(int i = 0; i < 4; i++) {
+                        for(int i = 0; i < 3; i++) {
                             now = matchAllRef(flower, Database.tabelNames[i]);
                             if (now < min) {
                                 result = Database.tabelNames[i];
@@ -279,38 +279,41 @@ public class ProcessActivity extends ActionBarActivity {
                         }
                         break;
                     case 1:
-                        for(int i = 0; i < 4; i++) {
-                            now = matchAllRef(flower, Database.tabelNames[i + 4]);
+                        for(int i = 0; i < 3; i++) {
+                            now = matchAllRef(flower, Database.tabelNames[i + 3]);
                             if (now < min) {
-                                result = Database.tabelNames[i + 4];
+                                result = Database.tabelNames[i + 3];
                                 min = now;
                             }
                         }
                         break;
                     case 2:
                         for(int i = 0; i < 3; i++) {
-                            now = matchAllRef(flower, Database.tabelNames[i + 8]);
+                            now = matchAllRef(flower, Database.tabelNames[i + 6]);
                             if (now < min) {
-                                result = Database.tabelNames[i + 8];
+                                result = Database.tabelNames[i + 6];
                                 min = now;
                             }
                         }
                         break;
                     case 3:
                         for(int i = 0; i < 3; i++) {
-                            now = matchAllRef(flower, Database.tabelNames[i + 11]);
+                            now = matchAllRef(flower, Database.tabelNames[i + 9]);
                             if (now < min) {
-                                result = Database.tabelNames[i + 11];
+                                result = Database.tabelNames[i + 9];
                                 min = now;
                             }
                         }
                         break;
                     case 4:
                         Log.v("fuck", "other");
-//                        result = matchAllRef(flower, "daisy") <
-//                            matchAllRef(flower, "wind") ?
-//                            "Other" : "Other";
-                        result = "other";
+                        for(int i = 0; i < 12; i++) {
+                            now = matchAllRef(flower, Database.tabelNames[i]);
+                            if (now < min) {
+                                result = Database.tabelNames[i];
+                                min = now;
+                            }
+                        }
                         break;
                 }
 
@@ -483,34 +486,34 @@ public class ProcessActivity extends ActionBarActivity {
         Mat m = img.submat(w, w * 2, h, h * 2);
 
         Scalar chnn = Core.mean(m);
-        Log.v("fuck", "" + chnn.val[2]);
-        Log.v("fuck", "" + chnn.val[1]);
-        Log.v("fuck", "" + chnn.val[0]);
+        Log.v("fuck", "" + chnn.val[2]);//B
+        Log.v("fuck", "" + chnn.val[1]);//G
+        Log.v("fuck", "" + chnn.val[0]);//R
 
-        if(chnn.val[2] * 2 < chnn.val[0] &&
-                chnn.val[2] * 2 + 10 < chnn.val[1]) {
+        if(chnn.val[2] < 86.00 &&
+                chnn.val[1] > 68.99) {
             // Yellow
-//            Log.v("fuck", "yellow");
+            Log.v("fuck", "yellow");
             return 1;
-        }else if (chnn.val[2] > 110 && chnn.val[1] > 138 &&
-                    chnn.val[0] > 140){
-            // White
-//            Log.v("fuck", "white");
-            return 0;
-        }else if (chnn.val[1] + 44 < chnn.val[2] &&
-                    chnn.val[1] + 30 < chnn.val[0]){
+        }else if (chnn.val[2] > 131.19 &&
+                chnn.val[0] > 122.21){
             // pink
-//            Log.v("fuck", "pink");j
+            Log.v("fuck", "pink");
             return 3;
-        }else if (chnn.val[0] > 2 * chnn.val[1] - 37 &&
-                chnn.val[0] > 2 * chnn.val[2] - 21){
+        }else if (chnn.val[0] > 143.82 &&
+                chnn.val[1] < 143.82){
             //red
-//            Log.v("fuck", "red");
+            Log.v("fuck", "red");
             return 2;
+        }else if (chnn.val[2] > 110 && chnn.val[1] > 110 &&
+                chnn.val[0] > 110){
+            // White
+            Log.v("fuck", "white");
+            return 0;
         }else {
             // others color
-//            Log.v("fuck", "other");
-            return -1;
+            Log.v("fuck", "other");
+            return 4;
         }
     }
 
