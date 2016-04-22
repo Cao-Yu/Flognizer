@@ -13,8 +13,12 @@ import com.cy.flognizer.R;
 import com.cy.flognizer.domain.Flower;
 
 import org.json.JSONObject;
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.KeyPoint;
+import org.opencv.core.Mat;
 import org.opencv.core.MatOfKeyPoint;
+import org.opencv.core.Scalar;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,8 +61,8 @@ public class Singleton {
     private Database database = null;
     private SQLiteDatabase sqldb = null;
 
-    public static final int REF = 0;
-    public static final int SMP = 1;
+    public List<Double> chns = new ArrayList<Double>();
+    public double[][][] channels = new double[4][15][3];
 
 //      this.database.getReadableDatabase();
 
@@ -76,6 +81,21 @@ public class Singleton {
             singleton = new Singleton(context);
         }
         return singleton;
+    }
+
+    private void getColor(Mat img) {
+        int w = img.rows() / 4;
+        int h = img.cols() / 4;
+        Mat m = img.submat(w, w * 2, h, h * 2);
+
+        Scalar chnn = Core.mean(m);
+        chns.add(chnn.val[2]);
+        chns.add(chnn.val[1]);
+        chns.add(chnn.val[0]);
+//        Log.v("fuck", "B: " + chnn.val[2]);//B
+//        Log.v("fuck", "G: " + chnn.val[1]);//G
+//        Log.v("fuck", "R: " + chnn.val[0]);//R
+
     }
 
     private void registLoop(String name, String[] ids, String folder){
@@ -99,6 +119,11 @@ public class Singleton {
                             realPath + ids[i] + extension);
 
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+            Mat m = new Mat();
+            Utils.bitmapToMat(bitmap, m);
+            getColor(m);
+
             byte[] binaryBitmap = baos.toByteArray();
 
             cv.put("bitmap", binaryBitmap);
@@ -113,6 +138,7 @@ public class Singleton {
 
             sqldb.insert(name, null, cv);
         }
+        Log.v("fuck", "-------------------------------");
         sqldb.close();
     }
 
@@ -187,6 +213,99 @@ public class Singleton {
         registLoop(database.TABLE_NAME_OST, ost, OST);
         registLoop(database.TABLE_NAME_HIBI, hibi, HIBI);
         registLoop(database.TABLE_NAME_PELAR, pelar, PELAR);
+
+        Log.v("fuck", "lenth: " + chns.size());
+
+        for(int i = 0, j = 0; i < 15 && j < 4; i++){
+
+        }
+        double minB = 500;
+        double minG = 500;
+        double minR = 500;
+        double maxB = 0;
+        double maxG = 0;
+        double maxR = 0;
+        // white
+        for(int i = 0; i < 15; i++){
+            channels[0][i][0] = chns.get(i * 3);
+            channels[0][i][1] = chns.get(i * 3 + 1);
+            channels[0][i][2] = chns.get(i * 3 + 2);
+            minB = minB < channels[0][i][0] ?
+                    minB : channels[0][i][0];
+            minG = minG < channels[0][i][1] ?
+                    minG : channels[0][i][1];
+            minR = minR < channels[0][i][2] ?
+                    minR : channels[0][i][2];
+        }
+        Log.v("fuck", "minB: " + minB);
+        Log.v("fuck", "minG: " + minG);
+        Log.v("fuck", "minR: " + minR);
+        ProcessActivity.thresholds[0][0] = minB;
+        ProcessActivity.thresholds[0][1] = minG;
+        ProcessActivity.thresholds[0][2] = minR;
+        minB = 500;
+        minG = 500;
+        minR = 500;
+        maxB = 0;
+        maxG = 0;
+        maxR = 0;
+
+        // yellow
+        for(int i = 0; i < 15; i++){
+            channels[1][i][0] = chns.get(i * 3 + 45);
+            channels[1][i][1] = chns.get(i * 3 + 1 + 45);
+            channels[1][i][2] = chns.get(i * 3 + 2 + 45);
+            maxB = maxB > channels[1][i][0] ?
+                    maxB : channels[1][i][0];
+            minG = minG < channels[1][i][1] ?
+                    minG : channels[1][i][1];
+        }
+        Log.v("fuck", "maxB: " + maxB);
+        Log.v("fuck", "minG: " + minG);
+        ProcessActivity.thresholds[1][0] = minB;
+        ProcessActivity.thresholds[1][1] = minG;
+        minB = 500;
+        minG = 500;
+        minR = 500;
+        maxB = 0;
+        maxG = 0;
+        maxR = 0;
+
+        // red
+        for(int i = 0; i < 15; i++){
+            channels[2][i][0] = chns.get(i * 3 + 90);
+            channels[2][i][1] = chns.get(i * 3 + 1 + 90);
+            channels[2][i][2] = chns.get(i * 3 + 2 + 90);
+            maxG = maxG > channels[2][i][1] ?
+                    maxG : channels[2][i][1];
+            minR = minR < channels[2][i][2] ?
+                    minR : channels[2][i][2];
+        }
+        Log.v("fuck", "maxG: " + maxG);
+        Log.v("fuck", "minR: " + minR);
+        ProcessActivity.thresholds[2][1] = minG;
+        ProcessActivity.thresholds[2][2] = minR;
+        minB = 500;
+        minG = 500;
+        minR = 500;
+        maxB = 0;
+        maxG = 0;
+        maxR = 0;
+
+        // pink
+        for(int i = 0; i < 15; i++){
+            channels[3][i][0] = chns.get(i * 3 + 135);
+            channels[3][i][1] = chns.get(i * 3 + 1 + 135);
+            channels[3][i][2] = chns.get(i * 3 + 2 + 135);
+            minB = minB < channels[3][i][0] ?
+                    minB : channels[3][i][0];
+            minR = minR < channels[3][i][2] ?
+                    minR : channels[3][i][2];
+        }
+        Log.v("fuck", "minB: " + minB);
+        Log.v("fuck", "minR: " + minR);
+        ProcessActivity.thresholds[3][0] = minB;
+        ProcessActivity.thresholds[3][2] = minR;
 
         return true;
     }

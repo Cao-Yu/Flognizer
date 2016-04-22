@@ -97,6 +97,8 @@ public class ProcessActivity extends ActionBarActivity {
 
     public static int count = 0;
 
+    public static double[][] thresholds = new double[4][3];
+
     // Singleton
     private Singleton singleton = Singleton.getSingleton(ProcessActivity.this);
 
@@ -507,6 +509,45 @@ public class ProcessActivity extends ActionBarActivity {
             return 2;
         }else if (chnn.val[2] > 110 && chnn.val[1] > 110 &&
                 chnn.val[0] > 110){
+            // White
+            Log.v("fuck", "white");
+            return 0;
+        }else {
+            // others color
+            Log.v("fuck", "other");
+            return 4;
+        }
+    }
+
+    private int getColors(Mat img) {
+        int w = img.rows() / 4;
+        int h = img.cols() / 4;
+        Mat m = img.submat(w, w * 2, h, h * 2);
+
+        Scalar chnn = Core.mean(m);
+        Log.v("fuck", "" + chnn.val[2]);//B
+        Log.v("fuck", "" + chnn.val[1]);//G
+        Log.v("fuck", "" + chnn.val[0]);//R
+
+
+        if(chnn.val[2] < (thresholds[1][0] + thresholds[1][1]) / 2 &&
+                chnn.val[1] > (thresholds[1][0] + thresholds[1][1]) / 2) {
+            // Yellow
+            Log.v("fuck", "yellow");
+            return 1;
+        }else if (chnn.val[2] > thresholds[3][0] - 10 &&
+                chnn.val[0] > thresholds[3][2] - 10){
+            // pink
+            Log.v("fuck", "pink");
+            return 3;
+        }else if (chnn.val[0] > (thresholds[2][2] + thresholds[2][1]) / 2 &&
+                chnn.val[1] < (thresholds[2][2] + thresholds[2][1]) / 2){
+            //red
+            Log.v("fuck", "red");
+            return 2;
+        }else if (chnn.val[2] > thresholds[0][0] - 10 &&
+                chnn.val[1] > thresholds[0][1] - 10 &&
+                chnn.val[0] > thresholds[0][2] - 10){
             // White
             Log.v("fuck", "white");
             return 0;
