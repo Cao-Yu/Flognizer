@@ -216,9 +216,6 @@ public class Singleton {
 
         Log.v("fuck", "lenth: " + chns.size());
 
-        for(int i = 0, j = 0; i < 15 && j < 4; i++){
-
-        }
         double minB = 500;
         double minG = 500;
         double minR = 500;
