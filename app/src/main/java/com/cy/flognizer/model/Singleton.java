@@ -10,15 +10,19 @@ import android.util.Log;
 
 import com.cy.flognizer.ProcessActivity;
 import com.cy.flognizer.R;
+import com.cy.flognizer.Tool;
 import com.cy.flognizer.domain.Flower;
 
 import org.json.JSONObject;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.KeyPoint;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -64,6 +68,9 @@ public class Singleton {
     public List<Double> chns = new ArrayList<Double>();
     public double[][][] channels = new double[4][15][3];
 
+    public static List<Double> hList = new ArrayList<Double>();
+    public static List<Double> sList = new ArrayList<Double>();
+
 //      this.database.getReadableDatabase();
 
 //    // contains all reference
@@ -98,6 +105,28 @@ public class Singleton {
 
     }
 
+    public void getHSVColor(Mat img){
+
+        int wid = img.rows() / 4;
+        int hei = img.cols() / 4;
+        Mat cutMat = img.submat(wid, wid * 2, hei, hei * 2);
+        // get hsv
+        Mat m = new Mat();
+        Imgproc.cvtColor(cutMat,m,Imgproc.COLOR_BGRA2RGB);
+        Imgproc.cvtColor(m,m,Imgproc.COLOR_RGB2HSV);
+
+        Scalar scalar = Core.mean(m);
+        double h = (scalar.val[0] / 179) * 360;
+        double s = (scalar.val[1] / 255) * 100;
+//        double v = (scalar.val[2] / 255) * 100;
+//        Log.v("fuck", "H: " + h);
+//        Log.v("fuck", "S: " + s);
+//        Log.v("fuck", "V: " + v);
+
+        hList.add(h);
+        sList.add(s);
+    }
+
     private void registLoop(String name, String[] ids, String folder){
 
         sqldb = database.getWritableDatabase();
@@ -123,6 +152,7 @@ public class Singleton {
             Mat m = new Mat();
             Utils.bitmapToMat(bitmap, m);
             getColor(m);
+            getHSVColor(m);
 
             byte[] binaryBitmap = baos.toByteArray();
 
@@ -138,7 +168,7 @@ public class Singleton {
 
             sqldb.insert(name, null, cv);
         }
-        Log.v("fuck", "-------------------------------");
+//        Log.v("fuck", "-------------------------------");
         sqldb.close();
     }
 
@@ -214,7 +244,7 @@ public class Singleton {
         registLoop(database.TABLE_NAME_HIBI, hibi, HIBI);
         registLoop(database.TABLE_NAME_PELAR, pelar, PELAR);
 
-        Log.v("fuck", "lenth: " + chns.size());
+//        Log.v("fuck", "lenth: " + chns.size());
 
         double minB = 500;
         double minG = 500;
@@ -234,9 +264,9 @@ public class Singleton {
             minR = minR < channels[0][i][2] ?
                     minR : channels[0][i][2];
         }
-        Log.v("fuck", "minB: " + minB);
-        Log.v("fuck", "minG: " + minG);
-        Log.v("fuck", "minR: " + minR);
+//        Log.v("fuck", "minB: " + minB);
+//        Log.v("fuck", "minG: " + minG);
+//        Log.v("fuck", "minR: " + minR);
         ProcessActivity.thresholds[0][0] = minB;
         ProcessActivity.thresholds[0][1] = minG;
         ProcessActivity.thresholds[0][2] = minR;
@@ -257,8 +287,8 @@ public class Singleton {
             minG = minG < channels[1][i][1] ?
                     minG : channels[1][i][1];
         }
-        Log.v("fuck", "maxB: " + maxB);
-        Log.v("fuck", "minG: " + minG);
+//        Log.v("fuck", "maxB: " + maxB);
+//        Log.v("fuck", "minG: " + minG);
         ProcessActivity.thresholds[1][0] = minB;
         ProcessActivity.thresholds[1][1] = minG;
         minB = 500;
@@ -278,8 +308,8 @@ public class Singleton {
             minR = minR < channels[2][i][2] ?
                     minR : channels[2][i][2];
         }
-        Log.v("fuck", "maxG: " + maxG);
-        Log.v("fuck", "minR: " + minR);
+//        Log.v("fuck", "maxG: " + maxG);
+//        Log.v("fuck", "minR: " + minR);
         ProcessActivity.thresholds[2][1] = minG;
         ProcessActivity.thresholds[2][2] = minR;
         minB = 500;
@@ -299,10 +329,25 @@ public class Singleton {
             minR = minR < channels[3][i][2] ?
                     minR : channels[3][i][2];
         }
-        Log.v("fuck", "minB: " + minB);
-        Log.v("fuck", "minR: " + minR);
+//        Log.v("fuck", "minB: " + minB);
+//        Log.v("fuck", "minR: " + minR);
         ProcessActivity.thresholds[3][0] = minB;
         ProcessActivity.thresholds[3][2] = minR;
+
+        Log.v("fuck", "-----------------*-*-*-");
+        Mat m = Mat.zeros(60, 2, CvType.CV_32F);
+
+        for(int i = 0; i < 60; i++){
+            Log.v("fuck", "H: " + hList.get(i));
+            m.get(i, 0)[0] = hList.get(i);
+        }
+
+        for(int i = 0; i < 60; i++){
+            Log.v("fuck", "S: " + sList.get(i));
+            m.get(i, 1)[0] = sList.get(i);
+        }
+
+        Tool.kmeans(m);
 
         return true;
     }

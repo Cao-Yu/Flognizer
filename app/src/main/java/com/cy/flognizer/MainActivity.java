@@ -18,7 +18,9 @@ import android.view.View.OnClickListener;
 import com.cy.flognizer.domain.Flower;
 import com.cy.flognizer.model.Database;
 
+import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;

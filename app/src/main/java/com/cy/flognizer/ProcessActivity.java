@@ -183,10 +183,17 @@ public class ProcessActivity extends ActionBarActivity {
                         selectedImage.getWidth(), CvType.CV_8UC4);
 //                        selectedImage.getWidth(), CvType.CV_32F);
 
-                imgToGrab = new Mat(selectedImage.getHeight(),
-                        selectedImage.getWidth(), CvType.CV_8UC3);
+//                Imgproc.cvtColor(img, imgToGrab, Imgproc.COLOR_BGRA2RGB);
+//                Log.v("fuck", "imgToGrab size: " + imgToGrab.size());
+//                Log.v("fuck", "imgToGrab type: " + imgToGrab);
 
                 Utils.bitmapToMat(selectedImage, img);
+                Log.v("fuck", "img type: " + imgToGrab);
+
+//                imgToGrab = new Mat(selectedImage.getHeight(),
+//                        selectedImage.getWidth(), CvType.CV_8UC3);
+//                Utils.bitmapToMat(selectedImage, imgToGrab);
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -254,8 +261,40 @@ public class ProcessActivity extends ActionBarActivity {
 //                sobel();
 //                return true;
             case R.id.menu_register:
-                getColor();
-//                  grabCut(imgToGrab);
+
+                imgToGrab = img;
+                Imgproc.cvtColor(imgToGrab, imgToGrab, Imgproc.COLOR_BGRA2RGB);
+                Log.v("fuck", "imgToGrab type: " + imgToGrab);
+
+                grabCut(imgToGrab);
+
+
+//                Bitmap b = Bitmap.createBitmap(imgToGrab.cols(),
+//                        imgToGrab.rows(), Bitmap.Config.RGB_565);
+//
+//                Utils.matToBitmap(imgToGrab, b);
+//                imageView.setImageBitmap(b);
+
+//                // get hsv
+//                Mat m = new Mat();
+//                Imgproc.cvtColor(this.img,m,Imgproc.COLOR_BGRA2RGB);
+//                Imgproc.cvtColor(m,m,Imgproc.COLOR_RGB2HSV);
+//
+//                Scalar scalar = Core.mean(m);
+////                double h = (scalar.val[0] / 179) * 360;
+////                double s = (scalar.val[1] / 255) * 100;
+////                double v = (scalar.val[1] / 255) * 100;
+//
+//                double h = scalar.val[0];
+//                double s = scalar.val[1];
+//                double v = scalar.val[2];
+//                Log.v("fuck", "h: " + h);
+//                Log.v("fuck", "s: " + s);
+//                Log.v("fuck", "v: " + v);
+
+//                Tool.kmeans(this.img);
+//                getColor();
+
 //                register(img);
 //                Flower flw = new Flower(this.img, "ref");
 //                Flower flw2 = singleton.getFlower("daisy", 1);
@@ -373,97 +412,48 @@ public class ProcessActivity extends ActionBarActivity {
         imageView.setImageBitmap(bitmap);
     }
 
-    private void grabCut(Mat srcImg){
 
-//        Log.v("fuck", "srcImgC3 chnn: " + srcImg.channels());
-//
-//        List<Mat> rgba = new ArrayList<Mat>(3);
-//        Core.split(srcImg, rgba);
-//        Log.v("fuck", "rgba count:" + rgba.size());
-//        rgba.remove(3);
-//        List<Mat> rgb = rgba;
-//        Log.v("fuck", "rgba count:" + rgb.size());
-//
-//        Mat dst = new Mat(srcImg.cols(), srcImg.rows(),
-//                CvType.CV_8UC3);
-//        Core.merge(rgb, dst);
-//        Log.v("fuck", "dst chnn" + dst.channels());
+    private void grabCut(Mat src){
 
-//        Mat alpha = new Mat();
-//        Imgproc.cvtColor(src, src, Imgproc.COLOR_BGR2GRAY);
-//        Imgproc.threshold(src, alpha, 100, 255,
-//                Imgproc.THRESH_BINARY);
+        // 首先，搞一个矩形框。外边默认是背景，里边的内容将会被执行grabcut。
+        int w = src.cols() - 10;
+        int h = src.rows() - 10;
+        Rect rect = new Rect(5, 5, w, h);
 
-//        Mat bgd = new Mat();
-//        bgd.setTo(new Scalar(255, 255, 255));
-//        Mat fgd = new Mat();
-//        fgd.setTo(new Scalar(255, 255, 255));
-//
-//        Mat mask = new Mat();
-//        mask.setTo(new Scalar(125));
-//
-//        // Rect
-//        int ro = dst.rows();
-//        int co = dst.cols();
-//        Point p1 = new Point(co/5, ro/5);
-//        Point p2 = new Point(co - co / 5, ro - ro / 8);
-//        Rect rect = new Rect(p1, p2);
-//
-//        Imgproc.grabCut(
-//                dst,
-//                mask,
-//                rect,
-//                bgd, fgd, Imgproc.GC_INIT_WITH_RECT);
-//
-//        Mat source = new Mat(1, 1, CvType.CV_8U, new Scalar(3));
-//
-//        Core.compare(mask, source, mask, Core.CMP_EQ);
-////
-//        Mat foreground = new Mat(dst.size(), CvType.CV_8UC3,
-//                new Scalar(255, 255, 255));
-////                new Scalar(0, 0, 0));
-//        dst.copyTo(foreground, mask);
+        // 创建两个Mat：前景和背景。注意，前景不等于结果，只是一个内部中间量。
+        Mat bg = new Mat();
+        Mat fg = new Mat();
 
-//        Core.rectangle(img, p1, p2, new Scalar(255, 0, 0, 255));
+        // 创建一个用来装结果的Mat，并开始grabcut：
+        Mat result = new Mat();
+        Imgproc.grabCut(src, result, rect,
+                bg, fg, 1, Imgproc.GC_INIT_WITH_RECT);
+//        Mat source = new Mat(1, 1, CvType.CV_8U, new Scalar(Imgproc.GC_PR_FGD));
+        Mat source = new Mat(1, 1, CvType.CV_8U, new Scalar(3.0));
+//        Core.compare(result, new Scalar(Imgproc.GC_PR_FGD),
+//                result, Core.CMP_EQ);
+        Log.v("fuck", "result size: " + result.size());
+        Log.v("fuck", "result 50, 50: " + result.get(10, 10)[0]);
+        Log.v("fuck", "result 50, 50: " + result.get(19, 19)[0]);
+        Log.v("fuck", "result 50, 50: " + result.get(30, 30)[0]);
+        Log.v("fuck", "result 50, 50: " + result.get(40, 40)[0]);
+        Log.v("fuck", "result 50, 50: " + result.get(50, 50)[0]);
+        Log.v("fuck", "result 50, 50: " + result.get(60, 60)[0]);
+        Log.v("fuck", "result 50, 50: " + result.get(150, 150)[0]);
+        Log.v("fuck", "result 50, 50: " + result.get(200, 200)[0]);
+        Log.v("fuck", "result 50, 50: " + result.get(250, 250)[0]);
+        Log.v("fuck", "result 50, 50: " + result.get(300, 300)[0]);
+        Core.compare(result, source, result, Core.CMP_EQ);
 
-//        Mat background = new Mat();
-//        try {
-//            background = Utils.loadResource(getApplicationContext(),
-//                    R.drawable.sunflower );
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        Mat tmp = new Mat();
-//        Imgproc.resize(background, tmp, img.size());
-//
-//        background = tmp;
-//
-//        Mat tempMask = new Mat(foreground.size(), CvType.CV_8UC1,
-//                new Scalar(255, 255, 255));
-//        Imgproc.cvtColor(foreground, tempMask, 6/* COLOR_BGR2GRAY */);
-//        //Imgproc.threshold(tempMask, tempMask, 254, 255, 1 /* THRESH_BINARY_INV */);
-//
-//        Mat vals = new Mat(1, 1, CvType.CV_8UC3, new Scalar(0.0));
-//        Mat dst = new Mat();
-//        background.setTo(vals, tempMask);
-//        Imgproc.resize(foreground, tmp, mask.size());
-//        foreground = tmp;
-//        Core.add(background, foreground, dst, tempMask);
+        //
+        Mat foreground = new Mat(src.size(),
+                CvType.CV_8UC3, new Scalar(255,255,255));
+        src.copyTo(foreground, result);
 
-//        Log.v("fuck", "mask count: " + mask.total());
+        Bitmap b = Bitmap.createBitmap(foreground.cols(),
+                foreground.rows(), Bitmap.Config.RGB_565);
 
-
-//        Scalar chnn = Core.mean(mask);
-//        Log.v("fuck", "" + chnn.val[0]);
-//        Log.v("fuck", "" + chnn.val[1]);
-//        Log.v("fuck", "" + chnn.val[2]);
-
-        Imgproc.cvtColor(srcImg, srcImg, Imgproc.COLOR_BGR2RGB);
-        Bitmap b = Bitmap.createBitmap(srcImg.cols(),
-                srcImg.rows(), Bitmap.Config.RGB_565);
-
-        Utils.matToBitmap(srcImg, b);
+        Utils.matToBitmap(foreground, b);
         imageView.setImageBitmap(b);
     }
 
