@@ -432,17 +432,7 @@ public class ProcessActivity extends ActionBarActivity {
         Mat source = new Mat(1, 1, CvType.CV_8U, new Scalar(3.0));
 //        Core.compare(result, new Scalar(Imgproc.GC_PR_FGD),
 //                result, Core.CMP_EQ);
-        Log.v("fuck", "result size: " + result.size());
-        Log.v("fuck", "result 50, 50: " + result.get(10, 10)[0]);
-        Log.v("fuck", "result 50, 50: " + result.get(19, 19)[0]);
-        Log.v("fuck", "result 50, 50: " + result.get(30, 30)[0]);
-        Log.v("fuck", "result 50, 50: " + result.get(40, 40)[0]);
-        Log.v("fuck", "result 50, 50: " + result.get(50, 50)[0]);
-        Log.v("fuck", "result 50, 50: " + result.get(60, 60)[0]);
-        Log.v("fuck", "result 50, 50: " + result.get(150, 150)[0]);
-        Log.v("fuck", "result 50, 50: " + result.get(200, 200)[0]);
-        Log.v("fuck", "result 50, 50: " + result.get(250, 250)[0]);
-        Log.v("fuck", "result 50, 50: " + result.get(300, 300)[0]);
+
         Core.compare(result, source, result, Core.CMP_EQ);
 
         //
