@@ -122,8 +122,6 @@ public class ProcessActivity extends ActionBarActivity {
 
         setContentView(imageView);
         registerForContextMenu(imageView);
-
-        singleton.initDataset();
     }
 
     @Override
@@ -183,16 +181,8 @@ public class ProcessActivity extends ActionBarActivity {
                         selectedImage.getWidth(), CvType.CV_8UC4);
 //                        selectedImage.getWidth(), CvType.CV_32F);
 
-//                Imgproc.cvtColor(img, imgToGrab, Imgproc.COLOR_BGRA2RGB);
-//                Log.v("fuck", "imgToGrab size: " + imgToGrab.size());
-//                Log.v("fuck", "imgToGrab type: " + imgToGrab);
-
                 Utils.bitmapToMat(selectedImage, img);
-                Log.v("fuck", "img type: " + imgToGrab);
-
-//                imgToGrab = new Mat(selectedImage.getHeight(),
-//                        selectedImage.getWidth(), CvType.CV_8UC3);
-//                Utils.bitmapToMat(selectedImage, imgToGrab);
+                Log.v("fuck", "img type: " + img.type());
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -263,10 +253,18 @@ public class ProcessActivity extends ActionBarActivity {
             case R.id.menu_register:
 
                 imgToGrab = img;
-                Imgproc.cvtColor(imgToGrab, imgToGrab, Imgproc.COLOR_BGRA2RGB);
-                Log.v("fuck", "imgToGrab type: " + imgToGrab);
+                Imgproc.cvtColor(imgToGrab, imgToGrab,
+                        Imgproc.COLOR_RGBA2RGB);
 
-                grabCut(imgToGrab);
+                Mat foreground = Tool.grabCut(imgToGrab);
+
+//                Tool.getHSVColor(foreground);
+
+                Bitmap b = Bitmap.createBitmap(foreground.cols(),
+                        foreground.rows(), Bitmap.Config.RGB_565);
+
+                Utils.matToBitmap(foreground, b);
+                imageView.setImageBitmap(b);
 
 
 //                Bitmap b = Bitmap.createBitmap(imgToGrab.cols(),
@@ -413,39 +411,7 @@ public class ProcessActivity extends ActionBarActivity {
     }
 
 
-    private void grabCut(Mat src){
 
-        // 首先，搞一个矩形框。外边默认是背景，里边的内容将会被执行grabcut。
-        int w = src.cols() - 10;
-        int h = src.rows() - 10;
-        Rect rect = new Rect(5, 5, w, h);
-
-        // 创建两个Mat：前景和背景。注意，前景不等于结果，只是一个内部中间量。
-        Mat bg = new Mat();
-        Mat fg = new Mat();
-
-        // 创建一个用来装结果的Mat，并开始grabcut：
-        Mat result = new Mat();
-        Imgproc.grabCut(src, result, rect,
-                bg, fg, 1, Imgproc.GC_INIT_WITH_RECT);
-//        Mat source = new Mat(1, 1, CvType.CV_8U, new Scalar(Imgproc.GC_PR_FGD));
-        Mat source = new Mat(1, 1, CvType.CV_8U, new Scalar(3.0));
-//        Core.compare(result, new Scalar(Imgproc.GC_PR_FGD),
-//                result, Core.CMP_EQ);
-
-        Core.compare(result, source, result, Core.CMP_EQ);
-
-        //
-        Mat foreground = new Mat(src.size(),
-                CvType.CV_8UC3, new Scalar(255,255,255));
-        src.copyTo(foreground, result);
-
-        Bitmap b = Bitmap.createBitmap(foreground.cols(),
-                foreground.rows(), Bitmap.Config.RGB_565);
-
-        Utils.matToBitmap(foreground, b);
-        imageView.setImageBitmap(b);
-    }
 
     /*
     * The blur method.

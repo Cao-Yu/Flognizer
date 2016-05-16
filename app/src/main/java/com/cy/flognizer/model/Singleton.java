@@ -71,6 +71,10 @@ public class Singleton {
     public static List<Double> hList = new ArrayList<Double>();
     public static List<Double> sList = new ArrayList<Double>();
 
+    public static List<Double> rList = new ArrayList<Double>();
+    public static List<Double> gList = new ArrayList<Double>();
+    public static List<Double> bList = new ArrayList<Double>();
+
 //      this.database.getReadableDatabase();
 
 //    // contains all reference
@@ -105,27 +109,7 @@ public class Singleton {
 
     }
 
-    public void getHSVColor(Mat img){
 
-        int wid = img.rows() / 4;
-        int hei = img.cols() / 4;
-        Mat cutMat = img.submat(wid, wid * 2, hei, hei * 2);
-        // get hsv
-        Mat m = new Mat();
-        Imgproc.cvtColor(cutMat,m,Imgproc.COLOR_BGRA2RGB);
-        Imgproc.cvtColor(m,m,Imgproc.COLOR_RGB2HSV);
-
-        Scalar scalar = Core.mean(m);
-        double h = (scalar.val[0] / 179) * 360;
-        double s = (scalar.val[1] / 255) * 100;
-//        double v = (scalar.val[2] / 255) * 100;
-//        Log.v("fuck", "H: " + h);
-//        Log.v("fuck", "S: " + s);
-//        Log.v("fuck", "V: " + v);
-
-        hList.add(h);
-        sList.add(s);
-    }
 
     private void registLoop(String name, String[] ids, String folder){
 
@@ -151,8 +135,17 @@ public class Singleton {
 
             Mat m = new Mat();
             Utils.bitmapToMat(bitmap, m);
-            getColor(m);
-            getHSVColor(m);
+
+//            // HSV
+//            Mat imgToGrab = new Mat();
+//            Imgproc.cvtColor(m, imgToGrab, Imgproc.COLOR_RGBA2RGB);
+//            Tool.getHSVColor(imgToGrab);
+
+            // RGB
+            Mat imgToGrab = new Mat();
+            Imgproc.cvtColor(m, imgToGrab, Imgproc.COLOR_RGBA2RGB);
+            Tool.colorClassification(imgToGrab);
+
 
             byte[] binaryBitmap = baos.toByteArray();
 
@@ -172,39 +165,6 @@ public class Singleton {
         sqldb.close();
     }
 
-    private void recgLoop(String name, String[] ids, String folder){
-
-        sqldb = database.getReadableDatabase();
-
-
-        String realPath = path + FOLDER_NAME +
-                folder + "/image_";
-
-        String extension = ".jpg";
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        for(int i = 0; i < 5; i++) {
-
-            //To convert the bitmap to binary strings
-            Bitmap bitmap =
-                    BitmapFactory.decodeFile(
-                            realPath + ids[i] + extension);
-
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] binaryBitmap = baos.toByteArray();
-
-            try {
-                baos.flush();
-                // clean
-                baos.reset();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-        sqldb.close();
-    }
 
     public boolean initDataset(){
         if(ProcessActivity.count != 0){
@@ -246,108 +206,124 @@ public class Singleton {
 
 //        Log.v("fuck", "lenth: " + chns.size());
 
-        double minB = 500;
-        double minG = 500;
-        double minR = 500;
-        double maxB = 0;
-        double maxG = 0;
-        double maxR = 0;
-        // white
-        for(int i = 0; i < 15; i++){
-            channels[0][i][0] = chns.get(i * 3);
-            channels[0][i][1] = chns.get(i * 3 + 1);
-            channels[0][i][2] = chns.get(i * 3 + 2);
-            minB = minB < channels[0][i][0] ?
-                    minB : channels[0][i][0];
-            minG = minG < channels[0][i][1] ?
-                    minG : channels[0][i][1];
-            minR = minR < channels[0][i][2] ?
-                    minR : channels[0][i][2];
-        }
-//        Log.v("fuck", "minB: " + minB);
-//        Log.v("fuck", "minG: " + minG);
-//        Log.v("fuck", "minR: " + minR);
-        ProcessActivity.thresholds[0][0] = minB;
-        ProcessActivity.thresholds[0][1] = minG;
-        ProcessActivity.thresholds[0][2] = minR;
-        minB = 500;
-        minG = 500;
-        minR = 500;
-        maxB = 0;
-        maxG = 0;
-        maxR = 0;
 
-        // yellow
-        for(int i = 0; i < 15; i++){
-            channels[1][i][0] = chns.get(i * 3 + 45);
-            channels[1][i][1] = chns.get(i * 3 + 1 + 45);
-            channels[1][i][2] = chns.get(i * 3 + 2 + 45);
-            maxB = maxB > channels[1][i][0] ?
-                    maxB : channels[1][i][0];
-            minG = minG < channels[1][i][1] ?
-                    minG : channels[1][i][1];
-        }
-//        Log.v("fuck", "maxB: " + maxB);
-//        Log.v("fuck", "minG: " + minG);
-        ProcessActivity.thresholds[1][0] = minB;
-        ProcessActivity.thresholds[1][1] = minG;
-        minB = 500;
-        minG = 500;
-        minR = 500;
-        maxB = 0;
-        maxG = 0;
-        maxR = 0;
 
-        // red
-        for(int i = 0; i < 15; i++){
-            channels[2][i][0] = chns.get(i * 3 + 90);
-            channels[2][i][1] = chns.get(i * 3 + 1 + 90);
-            channels[2][i][2] = chns.get(i * 3 + 2 + 90);
-            maxG = maxG > channels[2][i][1] ?
-                    maxG : channels[2][i][1];
-            minR = minR < channels[2][i][2] ?
-                    minR : channels[2][i][2];
-        }
-//        Log.v("fuck", "maxG: " + maxG);
-//        Log.v("fuck", "minR: " + minR);
-        ProcessActivity.thresholds[2][1] = minG;
-        ProcessActivity.thresholds[2][2] = minR;
-        minB = 500;
-        minG = 500;
-        minR = 500;
-        maxB = 0;
-        maxG = 0;
-        maxR = 0;
+//        double minB = 500;
+//        double minG = 500;
+//        double minR = 500;
+//        double maxB = 0;
+//        double maxG = 0;
+//        double maxR = 0;
+//        // white
+//        for(int i = 0; i < 15; i++){
+//            channels[0][i][0] = chns.get(i * 3);
+//            channels[0][i][1] = chns.get(i * 3 + 1);
+//            channels[0][i][2] = chns.get(i * 3 + 2);
+//            minB = minB < channels[0][i][0] ?
+//                    minB : channels[0][i][0];
+//            minG = minG < channels[0][i][1] ?
+//                    minG : channels[0][i][1];
+//            minR = minR < channels[0][i][2] ?
+//                    minR : channels[0][i][2];
+//        }
+////        Log.v("fuck", "minB: " + minB);
+////        Log.v("fuck", "minG: " + minG);
+////        Log.v("fuck", "minR: " + minR);
+//        ProcessActivity.thresholds[0][0] = minB;
+//        ProcessActivity.thresholds[0][1] = minG;
+//        ProcessActivity.thresholds[0][2] = minR;
+//        minB = 500;
+//        minG = 500;
+//        minR = 500;
+//        maxB = 0;
+//        maxG = 0;
+//        maxR = 0;
+//
+//        // yellow
+//        for(int i = 0; i < 15; i++){
+//            channels[1][i][0] = chns.get(i * 3 + 45);
+//            channels[1][i][1] = chns.get(i * 3 + 1 + 45);
+//            channels[1][i][2] = chns.get(i * 3 + 2 + 45);
+//            maxB = maxB > channels[1][i][0] ?
+//                    maxB : channels[1][i][0];
+//            minG = minG < channels[1][i][1] ?
+//                    minG : channels[1][i][1];
+//        }
+////        Log.v("fuck", "maxB: " + maxB);
+////        Log.v("fuck", "minG: " + minG);
+//        ProcessActivity.thresholds[1][0] = minB;
+//        ProcessActivity.thresholds[1][1] = minG;
+//        minB = 500;
+//        minG = 500;
+//        minR = 500;
+//        maxB = 0;
+//        maxG = 0;
+//        maxR = 0;
+//
+//        // red
+//        for(int i = 0; i < 15; i++){
+//            channels[2][i][0] = chns.get(i * 3 + 90);
+//            channels[2][i][1] = chns.get(i * 3 + 1 + 90);
+//            channels[2][i][2] = chns.get(i * 3 + 2 + 90);
+//            maxG = maxG > channels[2][i][1] ?
+//                    maxG : channels[2][i][1];
+//            minR = minR < channels[2][i][2] ?
+//                    minR : channels[2][i][2];
+//        }
+////        Log.v("fuck", "maxG: " + maxG);
+////        Log.v("fuck", "minR: " + minR);
+//        ProcessActivity.thresholds[2][1] = minG;
+//        ProcessActivity.thresholds[2][2] = minR;
+//        minB = 500;
+//        minG = 500;
+//        minR = 500;
+//        maxB = 0;
+//        maxG = 0;
+//        maxR = 0;
+//
+//        // pink
+//        for(int i = 0; i < 15; i++){
+//            channels[3][i][0] = chns.get(i * 3 + 135);
+//            channels[3][i][1] = chns.get(i * 3 + 1 + 135);
+//            channels[3][i][2] = chns.get(i * 3 + 2 + 135);
+//            minB = minB < channels[3][i][0] ?
+//                    minB : channels[3][i][0];
+//            minR = minR < channels[3][i][2] ?
+//                    minR : channels[3][i][2];
+//        }
+////        Log.v("fuck", "minB: " + minB);
+////        Log.v("fuck", "minR: " + minR);
+//        ProcessActivity.thresholds[3][0] = minB;
+//        ProcessActivity.thresholds[3][2] = minR;
 
-        // pink
-        for(int i = 0; i < 15; i++){
-            channels[3][i][0] = chns.get(i * 3 + 135);
-            channels[3][i][1] = chns.get(i * 3 + 1 + 135);
-            channels[3][i][2] = chns.get(i * 3 + 2 + 135);
-            minB = minB < channels[3][i][0] ?
-                    minB : channels[3][i][0];
-            minR = minR < channels[3][i][2] ?
-                    minR : channels[3][i][2];
-        }
-//        Log.v("fuck", "minB: " + minB);
-//        Log.v("fuck", "minR: " + minR);
-        ProcessActivity.thresholds[3][0] = minB;
-        ProcessActivity.thresholds[3][2] = minR;
+
 
         Log.v("fuck", "-----------------*-*-*-");
-        Mat m = Mat.zeros(60, 2, CvType.CV_32F);
+//        Mat m = Mat.zeros(60, 2, CvType.CV_32F);
+
+//        for(int i = 0; i < 60; i++){
+//            Log.v("fuck", "H: " + hList.get(i));
+////            m.get(i, 0)[0] = hList.get(i);
+//        }
+//
+//        for(int i = 0; i < 60; i++){
+//            Log.v("fuck", "S: " + sList.get(i));
+////            m.get(i, 1)[0] = sList.get(i);
+//        }
 
         for(int i = 0; i < 60; i++){
-            Log.v("fuck", "H: " + hList.get(i));
-            m.get(i, 0)[0] = hList.get(i);
+            Log.v("fuck", "R: " + rList.get(i));
         }
 
         for(int i = 0; i < 60; i++){
-            Log.v("fuck", "S: " + sList.get(i));
-            m.get(i, 1)[0] = sList.get(i);
+            Log.v("fuck", "G: " + gList.get(i));
         }
 
-        Tool.kmeans(m);
+        for(int i = 0; i < 60; i++){
+            Log.v("fuck", "B: " + bList.get(i));
+        }
+
+//        Tool.kmeans(m);
 
         return true;
     }

@@ -17,6 +17,7 @@ import android.view.View.OnClickListener;
 
 import com.cy.flognizer.domain.Flower;
 import com.cy.flognizer.model.Database;
+import com.cy.flognizer.model.Singleton;
 
 import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
 import org.opencv.android.OpenCVLoader;
@@ -36,6 +37,10 @@ public class MainActivity extends ActionBarActivity {
     private Button btnLibrary;
     private TextView tvStatus;
     private static String openCVStatus = "";
+
+    // Singleton
+    private Singleton singleton =
+            Singleton.getSingleton(MainActivity.this);
 
     //  init the OpenCV and log the result
     static{
@@ -90,12 +95,12 @@ public class MainActivity extends ActionBarActivity {
         //  the status text definition
         tvStatus = (TextView) findViewById(R.id.status);
         tvStatus.setText(openCVStatus);
-
-        dbInit();
     }
 
-    private void dbInit(){
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        singleton.initDataset();
     }
 
     @Override
