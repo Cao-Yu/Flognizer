@@ -51,10 +51,10 @@ public class Tool {
                 CvType.CV_8UC3, new Scalar(0, 0, 0));
         src.copyTo(foreground, result);
 
-        int x1 = foreground.rows() / 3;
-        int y1 = foreground.cols() / 3;
-        int x2 = x1 * 2;
-        int y2 = y1 * 2;
+        int x1 = foreground.rows() / 4;
+        int y1 = foreground.cols() / 4;
+        int x2 = x1 * 3;
+        int y2 = y1 * 3;
 
 //        Log.v("fuck", "size: " + foreground.size());
 //        Log.v("fuck", "x1: " + x1);
@@ -62,9 +62,10 @@ public class Tool {
 //        Log.v("fuck", "x2: " + x2);
 //        Log.v("fuck", "y2: " + y2);
 
-//        foreground.submat(x1, x2, y1, y2).setTo(new Scalar(0,0,0));
+        foreground.submat(x1, x2, y1, y2).setTo(new Scalar(0,0,0));
 
 //        Mat mmm = foreground.submat(x1 - 10, x2 + 10, y1 - 10, y2 + 10);
+//        Mat mmm = foreground.submat(x1 - 20, x2, y1 - 20, y1);
 
         return foreground;
     }
@@ -95,21 +96,31 @@ public class Tool {
         // grubcut
         Mat m = Tool.grabCut(img);
 
-        int x1 = img.rows() / 3;
-        int y1 = img.cols() / 3;
-        int x2 = x1 * 2;
-        int y2 = y1 * 2;
+        List<Mat> list = new ArrayList<Mat>();
+        Core.split(m, list);
+        int count = 0;
+        double r = 0;
+        double g = 0;
+        double b = 0;
+//        long t1 = System.currentTimeMillis();
+        for(int i = 0; i < m.rows(); i++){
+            for(int j = 0; j < m.cols(); j++){
+                if(m.get(i, j)[0] > 0) {
+                    r += m.get(i, j)[0];
+                    g += m.get(i, j)[1];
+                    b += m.get(i, j)[2];
+                    count += 1;
+                }
+            }
+        }
+//        long t2 = System.currentTimeMillis() - t1;
+//        Log.v("fuck", "interate time: " + t2);
 
-        img.submat(x1, x2, y1, y2).setTo(new Scalar(0,0,0));
-        Mat mmm = img.submat(x1 - 10, x2 + 10, y1 - 10, y2 + 10);
-//
-////        int rate = (x2 - x1) * (y2 - y1);
+//        Scalar s = Core.mean(m);
 
-        Scalar s = Core.mean(mmm);
-
-        Singleton.rList.add(s.val[0]);
-        Singleton.gList.add(s.val[1]);
-        Singleton.bList.add(s.val[2]);
+        Singleton.rList.add(r / count);
+        Singleton.gList.add(g / count);
+        Singleton.bList.add(b / count);
     }
 
     public static Mat kmeans(Mat mat){

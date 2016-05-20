@@ -1,5 +1,6 @@
 package com.cy.flognizer.model;
 
+import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
