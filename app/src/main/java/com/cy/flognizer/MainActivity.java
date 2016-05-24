@@ -56,8 +56,9 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //  The start button definition
+        //  创建开始按钮
         btnStart = (Button) findViewById(R.id.btn_start);
+        // 按下时触发，跳转到拍照界面
         btnStart.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,12 +68,12 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        // The import button definition
+        // 创建导入按钮
         btnImport = (Button) findViewById(R.id.btn_import);
+        // 按下时触发，跳转到结果界面
         btnImport.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent intent =
                         new Intent(MainActivity.this,
                                 ProcessActivity.class);

@@ -8,7 +8,6 @@ import com.cy.flognizer.model.Singleton;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.TermCriteria;
@@ -40,7 +39,8 @@ public class Tool {
         Imgproc.grabCut(src, result, rect,
                 bg, fg, 3, Imgproc.GC_INIT_WITH_RECT);
 //        Mat source = new Mat(1, 1, CvType.CV_8U, new Scalar(Imgproc.GC_PR_FGD));
-        Mat source = new Mat(1, 1, CvType.CV_8U, new Scalar(3.0));
+        Mat source =
+                new Mat(1, 1, CvType.CV_8U, new Scalar(3.0));
 //        Core.compare(result, new Scalar(Imgproc.GC_PR_FGD),
 //                result, Core.CMP_EQ);
 
@@ -49,6 +49,7 @@ public class Tool {
         //
         Mat foreground = new Mat(src.size(),
                 CvType.CV_8UC3, new Scalar(0, 0, 0));
+
         src.copyTo(foreground, result);
 
         int x1 = foreground.rows() / 4;
