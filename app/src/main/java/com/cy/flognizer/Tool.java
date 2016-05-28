@@ -93,6 +93,16 @@ public class Tool {
         Singleton.sList.add(s);
     }
 
+    public static void colorSimple(Mat img){
+        int w = img.rows() / 4;
+        int h = img.cols() / 4;
+        Mat m = img.submat(w, w * 3, h, h * 3);
+        Scalar s = Core.mean(m);
+        Singleton.rList.add(s.val[0]);
+        Singleton.gList.add(s.val[1]);
+        Singleton.bList.add(s.val[2]);
+    }
+
     public static void colorClassification(Mat img){
         // grubcut
         Mat m = Tool.grabCut(img);

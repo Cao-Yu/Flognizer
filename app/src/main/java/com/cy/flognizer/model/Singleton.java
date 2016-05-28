@@ -145,8 +145,8 @@ public class Singleton {
             // RGB
             Mat imgToGrab = new Mat();
             Imgproc.cvtColor(m, imgToGrab, Imgproc.COLOR_RGBA2RGB);
-            Tool.colorClassification(imgToGrab);
-
+//            Tool.colorClassification(imgToGrab);
+            Tool.colorSimple(imgToGrab);
 
             byte[] binaryBitmap = baos.toByteArray();
 
