@@ -195,4 +195,8 @@ public class Tool {
 //        Log.v("fuck", "counts: " + counts);
 //        return clusters;
 //    }
+
+    public static void matToJSON (Mat mat) {
+//        Core.split(mat);
+    }
 }

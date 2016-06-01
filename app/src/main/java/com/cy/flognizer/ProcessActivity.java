@@ -252,51 +252,23 @@ public class ProcessActivity extends ActionBarActivity {
 //                return true;
             case R.id.menu_register:
 
-                imgToGrab = img;
-                Imgproc.cvtColor(imgToGrab, imgToGrab,
-                        Imgproc.COLOR_RGBA2RGB);
+//                imgToGrab = img;
+//                Imgproc.cvtColor(imgToGrab, imgToGrab,
+//                        Imgproc.COLOR_RGBA2RGB);
 
-                Mat foreground = Tool.grabCut(imgToGrab);
+//                Mat foreground = Tool.grabCut(imgToGrab);
 
 //                Tool.getHSVColor(foreground);
 
-                Bitmap b = Bitmap.createBitmap(foreground.cols(),
-                        foreground.rows(), Bitmap.Config.RGB_565);
+                int w = img.rows() / 4;
+                int h = img.cols() / 4;
+                Mat m = img.submat(w, w * 3, h, h * 3);
+                Bitmap b = Bitmap.createBitmap(m.cols(),
+                        m.rows(), Bitmap.Config.ARGB_8888);
 
-                Utils.matToBitmap(foreground, b);
+                Utils.matToBitmap(m, b);
                 imageView.setImageBitmap(b);
 
-
-//                Bitmap b = Bitmap.createBitmap(imgToGrab.cols(),
-//                        imgToGrab.rows(), Bitmap.Config.RGB_565);
-//
-//                Utils.matToBitmap(imgToGrab, b);
-//                imageView.setImageBitmap(b);
-
-//                // get hsv
-//                Mat m = new Mat();
-//                Imgproc.cvtColor(this.img,m,Imgproc.COLOR_BGRA2RGB);
-//                Imgproc.cvtColor(m,m,Imgproc.COLOR_RGB2HSV);
-//
-//                Scalar scalar = Core.mean(m);
-////                double h = (scalar.val[0] / 179) * 360;
-////                double s = (scalar.val[1] / 255) * 100;
-////                double v = (scalar.val[1] / 255) * 100;
-//
-//                double h = scalar.val[0];
-//                double s = scalar.val[1];
-//                double v = scalar.val[2];
-//                Log.v("fuck", "h: " + h);
-//                Log.v("fuck", "s: " + s);
-//                Log.v("fuck", "v: " + v);
-
-//                Tool.kmeans(this.img);
-//                getColor();
-
-//                register(img);
-//                Flower flw = new Flower(this.img, "ref");
-//                Flower flw2 = singleton.getFlower("daisy", 1);
-//                matchTwoFlowers(flw2, flw);
                 return true;
             case R.id.menu_match:
                 Flower flower = new Flower(this.img, "test");
