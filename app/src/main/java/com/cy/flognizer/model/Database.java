@@ -67,7 +67,7 @@ public class Database extends SQLiteOpenHelper{
 
         for(String name : tabelNames){
             db.execSQL("CREATE TABLE " + name +
-                    " (id INTEGER PRIMARY KEY, bitmap BLOB);");
+                    " (id INTEGER PRIMARY KEY, bitmap BLOB, descriptor BLOB);");
         }
 
     }

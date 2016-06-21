@@ -20,6 +20,7 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.KeyPoint;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfDMatch;
 import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Scalar;
@@ -137,6 +138,11 @@ public class Singleton {
             Mat m = new Mat();
             Utils.bitmapToMat(bitmap, m);
 
+            // 对 mat 进行提取 descriptor ，
+            // 如果成功，可以取消存储bitmap而直接存储descriptor
+            byte[] bytesDescriptor = Tool.serializeObject(m);
+
+
 //            // HSV
 //            Mat imgToGrab = new Mat();
 //            Imgproc.cvtColor(m, imgToGrab, Imgproc.COLOR_RGBA2RGB);
@@ -150,7 +156,8 @@ public class Singleton {
 
             byte[] binaryBitmap = baos.toByteArray();
 
-            cv.put("bitmap", binaryBitmap);
+//            cv.put("bitmap", binaryBitmap);
+            cv.put("descriptor", bytesDescriptor);
 
             try {
                 baos.flush();
@@ -162,7 +169,6 @@ public class Singleton {
 
             sqldb.insert(name, null, cv);
         }
-//        Log.v("fuck", "-------------------------------");
         sqldb.close();
     }
 
@@ -367,10 +373,6 @@ public class Singleton {
         Bitmap bitmap = BitmapFactory.decodeByteArray(
                 binaryBitmap, 0, binaryBitmap.length);
 
-//        String json = c.getString(1);
-
-//        MatOfKeyPoint matOfKeyPoint = Flower.JSONToKeyPoint(json);
-
         Flower flower = new Flower(bitmap, name);
 
         c.close();
@@ -379,34 +381,25 @@ public class Singleton {
         return flower;
     }
 
-    public Flower[] getFlowers(String name, int type){
-
+    public Mat getDescriptor(String name, int id){
         sqldb = database.getReadableDatabase();
 
-        String[] cols = {"bitmap"};
-
-        Flower[] flowers = new Flower[5];
+        String[] cols = {"descriptor"};
 
         Cursor c = sqldb.query(name, cols,
-                null, null, null, null, null, null);
+                "id = " + id, null, null, null, null, null);
 
-        for (int i = 0; i < 5; i++){
-            c.moveToNext();
+        c.moveToLast();
 
-            byte[] binaryBitmap = c.getBlob(0);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(
-                    binaryBitmap, 0, binaryBitmap.length);
-            flowers[i] = new Flower(bitmap, name);
-        }
+        byte[] binaryDescriptor = c.getBlob(0);
+        Log.v("fuck", "result length: " + binaryDescriptor.length);
 
-//        String json = c.getString(1);
-
-//        MatOfKeyPoint matOfKeyPoint = Flower.JSONToKeyPoint(json);
+        Mat m = (Mat)Tool.deserializeObject(binaryDescriptor);
 
         c.close();
         sqldb.close();
 
-        return flowers;
+        return m;
     }
 
     public List<Integer> queryAll(){

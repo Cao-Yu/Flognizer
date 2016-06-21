@@ -13,6 +13,12 @@ import org.opencv.core.Scalar;
 import org.opencv.core.TermCriteria;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +43,7 @@ public class Tool {
         // 创建一个用来装结果的Mat，并开始grabcut：
         Mat result = new Mat();
         Imgproc.grabCut(src, result, rect,
-                bg, fg, 3, Imgproc.GC_INIT_WITH_RECT);
+                bg, fg, 1, Imgproc.GC_INIT_WITH_RECT);
 //        Mat source = new Mat(1, 1, CvType.CV_8U, new Scalar(Imgproc.GC_PR_FGD));
         Mat source =
                 new Mat(1, 1, CvType.CV_8U, new Scalar(3.0));
@@ -57,11 +63,6 @@ public class Tool {
         int x2 = x1 * 3;
         int y2 = y1 * 3;
 
-//        Log.v("fuck", "size: " + foreground.size());
-//        Log.v("fuck", "x1: " + x1);
-//        Log.v("fuck", "y1: " + y1);
-//        Log.v("fuck", "x2: " + x2);
-//        Log.v("fuck", "y2: " + y2);
 
         foreground.submat(x1, x2, y1, y2).setTo(new Scalar(0,0,0));
 
@@ -196,7 +197,40 @@ public class Tool {
 //        return clusters;
 //    }
 
-    public static void matToJSON (Mat mat) {
-//        Core.split(mat);
+    // 把对象序列化为 byte[]
+    public static byte[] serializeObject(Object o) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        try {
+            ObjectOutput out = new ObjectOutputStream(bos);
+            out.writeObject(o);
+            out.close();
+
+            // Get the bytes of the serialized object
+            byte[] buf = bos.toByteArray();
+            return buf;
+        } catch(IOException ioe) {
+            Log.v("fuck", "error", ioe);
+
+            return null;
+        }
+    }
+
+    public static Object deserializeObject(byte[] b) {
+        try {
+            ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(b));
+            Object object = in.readObject();
+            in.close();
+
+            return object;
+        } catch(ClassNotFoundException cnfe) {
+            Log.v("fuck", "class not found error", cnfe);
+
+            return null;
+        } catch(IOException ioe) {
+            Log.v("fuck", "io error", ioe);
+
+            return null;
+        }
     }
 }

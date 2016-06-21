@@ -99,6 +99,9 @@ public class ProcessActivity extends ActionBarActivity {
 
     public static double[][] thresholds = new double[4][3];
 
+    // 用于存储 test image 的 descriptor
+    private Mat descriptor = null;
+
     // Singleton
     private Singleton singleton = Singleton.getSingleton(ProcessActivity.this);
 
@@ -252,25 +255,41 @@ public class ProcessActivity extends ActionBarActivity {
 //                return true;
             case R.id.menu_register:
 
+//                // time ***************************************
+//                long t0 = System.currentTimeMillis();
+//
 //                imgToGrab = img;
 //                Imgproc.cvtColor(imgToGrab, imgToGrab,
 //                        Imgproc.COLOR_RGBA2RGB);
-
+//
 //                Mat foreground = Tool.grabCut(imgToGrab);
+//
+//                // time ***************************************
+//                long t1 = System.currentTimeMillis() - t0;
+//                Log.v("fuck", "t1: " + t1);
+//
+////                Tool.getHSVColor(foreground);
+//
+////                int w = img.rows() / 4;
+////                int h = img.cols() / 4;
+////                Mat m = img.submat(w, w * 3, h, h * 3);
+//                Bitmap b = Bitmap.createBitmap(foreground.cols(),
+//                        foreground.rows(), Bitmap.Config.ARGB_8888);
+//
+//                Utils.matToBitmap(foreground, b);
+//                imageView.setImageBitmap(b);
 
-//                Tool.getHSVColor(foreground);
 
-                int w = img.rows() / 4;
-                int h = img.cols() / 4;
-                Mat m = img.submat(w, w * 3, h, h * 3);
-                Bitmap b = Bitmap.createBitmap(m.cols(),
-                        m.rows(), Bitmap.Config.ARGB_8888);
 
-                Utils.matToBitmap(m, b);
-                imageView.setImageBitmap(b);
+
+
+                singleton.getDescriptor(Database.tabelNames[0], 1);
 
                 return true;
             case R.id.menu_match:
+
+                long t = System.currentTimeMillis();
+
                 Flower flower = new Flower(this.img, "test");
                 double[] mean = {0, 0, 0, 0};
                 double min = 500;
@@ -331,6 +350,8 @@ public class ProcessActivity extends ActionBarActivity {
                 Toast.makeText(this, "This is a " + result,
                             Toast.LENGTH_LONG).show();
                 Log.v("fuck", "decision is ***************" + result);
+                Log.v("fuck", "time: " + (System.currentTimeMillis() - t));
+
 
                 return true;
             default:
@@ -406,33 +427,33 @@ public class ProcessActivity extends ActionBarActivity {
         Mat m = img.submat(w, w * 2, h, h * 2);
 
         Scalar chnn = Core.mean(m);
-        Log.v("fuck", "" + chnn.val[2]);//B
-        Log.v("fuck", "" + chnn.val[1]);//G
-        Log.v("fuck", "" + chnn.val[0]);//R
+//        Log.v("fuck", "" + chnn.val[2]);//B
+//        Log.v("fuck", "" + chnn.val[1]);//G
+//        Log.v("fuck", "" + chnn.val[0]);//R
 
         if(chnn.val[2] < 86.00 &&
                 chnn.val[1] > 68.99) {
             // Yellow
-            Log.v("fuck", "yellow");
+//            Log.v("fuck", "yellow");
             return 1;
         }else if (chnn.val[2] > 131.19 &&
                 chnn.val[0] > 122.21){
             // pink
-            Log.v("fuck", "pink");
+//            Log.v("fuck", "pink");
             return 3;
         }else if (chnn.val[0] > 143.82 &&
                 chnn.val[1] < 143.82){
             //red
-            Log.v("fuck", "red");
+//            Log.v("fuck", "red");
             return 2;
         }else if (chnn.val[2] > 110 && chnn.val[1] > 110 &&
                 chnn.val[0] > 110){
             // White
-            Log.v("fuck", "white");
+//            Log.v("fuck", "white");
             return 0;
         }else {
             // others color
-            Log.v("fuck", "other");
+//            Log.v("fuck", "other");
             return 4;
         }
     }
@@ -577,12 +598,15 @@ public class ProcessActivity extends ActionBarActivity {
 
     private double[] matchTwoFlowers(Flower flower, Flower refFlower) {
 
+//        long t0 = System.currentTimeMillis();
+
         // Store the result to be a return value
-        double[] result = {0, 0, 0, 0};
+        double[] result = {0, 0, 0, 0, 0, 0};
 
         // Get two mat images of two flowers
         Mat image = flower.getImg();
         Mat refImage = refFlower.getImg();
+
 
         // Get two mat images of two flowers
 //        Mat image = contours(flower.getImg());
@@ -600,6 +624,7 @@ public class ProcessActivity extends ActionBarActivity {
             isGray = true;
         }
 
+
         // Get two keypoints of two flowers
         // that after detected
         MatOfKeyPoint keyPoint = flower.getKeyPoint();
@@ -610,13 +635,32 @@ public class ProcessActivity extends ActionBarActivity {
                 DescriptorExtractor.
                         create(DescriptorExtractor.ORB);
 
-        // declare two descriptors to contain the features
-        Mat descriptor = new Mat();
-        Mat refDescriptor = new Mat();
 
-        // Use descriptor extractor to get the descriptors
-        descriptorExtractor.compute(image, keyPoint, descriptor);
+        if (descriptor == null){
+            descriptor = new Mat();
+            // Use descriptor extractor to get the descriptors
+            descriptorExtractor.compute(image, keyPoint, descriptor);
+        }
+
+
+
+
+        // time ***************************************
+        long t0 = System.currentTimeMillis();
+
+
+        // time ***************************************
+        long t1 = System.currentTimeMillis() - t0;
+        Log.v("fuck", "t1: " + t1);
+
+        // 定义参考 descriptor
+        Mat refDescriptor = new Mat();
         descriptorExtractor.compute(refImage, refKeyPoint, refDescriptor);
+
+        // time ***************************************
+        long t2 = System.currentTimeMillis() - t0;
+        Log.v("fuck", "t2: " + t2);
+
 
         // get the matcher for BF matching
         DescriptorMatcher descriptorMatcher =
@@ -628,10 +672,10 @@ public class ProcessActivity extends ActionBarActivity {
         // Declare a mat to contain matches
         MatOfDMatch matches = new MatOfDMatch();
 
-        long t1 = System.currentTimeMillis();
 
         // match with normal
         descriptorMatcher.match(descriptor, refDescriptor, matches);
+
 
         double sumOfMatch = 0;
 
@@ -663,14 +707,11 @@ public class ProcessActivity extends ActionBarActivity {
         }
 
 //        Log.v("fuck", "time per match is: " +
-//                Long.toString(t));
-
+//                (System.currentTimeMillis() - t0));
         result[0] = min;
         result[1] = goodMatchList.size();
         result[2] = sumOfMatch / goodMatchList.size();
 
-        long t = System.currentTimeMillis() - t1;
-        result[3] = t;
 
 //         Draw matches :
 
@@ -706,18 +747,19 @@ public class ProcessActivity extends ActionBarActivity {
         Flower refFlower;
 
         double mean = 0;
-        long t = 0;
+//        long t = 0;
         for(int i = 0; i < 5; i++){
             refFlower = singleton.getFlower(name, i + 1);
 
             double[] result =
                     matchTwoFlowers(flower, refFlower);
 
-            t += result[3];
+//            t += result[3];
 
 //            Log.v("fuck", "with " + name + " " + (i + 1) +
 //                    ", mean :" + result[2] +
 //                    ", time :" + result[3]);
+//            Log.v("fuck", "time: " + result[3]);
             // get the mean
             mean += result[2];
         }
