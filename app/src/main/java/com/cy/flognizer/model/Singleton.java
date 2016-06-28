@@ -24,6 +24,8 @@ import org.opencv.core.MatOfDMatch;
 import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Scalar;
+import org.opencv.features2d.DescriptorExtractor;
+import org.opencv.features2d.FeatureDetector;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayInputStream;
@@ -111,7 +113,26 @@ public class Singleton {
 
     }
 
+//    public void storeD(byte[] bytes){
+//
+//    }
 
+    // TO DO: 写一个方法，来测试 DB 功能
+    public byte[] testDB(byte[] bytes){
+        sqldb = database.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("descriptor", bytes);
+        sqldb.insert("daisy", null, cv);
+        sqldb.close();
+
+        sqldb = database.getReadableDatabase();
+        String[] cols = {"descriptor"};
+        Cursor c = sqldb.query("daisy", cols,
+                null, null, null, null, null, null);
+        c.moveToLast();
+        byte[] result = c.getBlob(0);
+        return result;
+    }
 
     private void registLoop(String name, String[] ids, String folder){
 
@@ -140,7 +161,22 @@ public class Singleton {
 
             // 对 mat 进行提取 descriptor ，
             // 如果成功，可以取消存储bitmap而直接存储descriptor
-            byte[] bytesDescriptor = Tool.serializeObject(m);
+            MatOfKeyPoint keyPoint = new MatOfKeyPoint();
+            // Get a FeatureDetector object
+            FeatureDetector detector =
+                    FeatureDetector.create(FeatureDetector.ORB);
+            // To detect the image
+            detector.detect(m, keyPoint);
+            // Get a descriptorExtractor of two flowers.
+            DescriptorExtractor descriptorExtractor =
+                    DescriptorExtractor.
+                            create(DescriptorExtractor.ORB);
+            Mat d = new Mat();
+            descriptorExtractor.compute(m, keyPoint, d);
+
+            Log.v("fuck", "d: " + d);
+            byte[] bytesDescriptor = Tool.serializeObject(d);
+
 
 
 //            // HSV
@@ -392,7 +428,6 @@ public class Singleton {
         c.moveToLast();
 
         byte[] binaryDescriptor = c.getBlob(0);
-        Log.v("fuck", "result length: " + binaryDescriptor.length);
 
         Mat m = (Mat)Tool.deserializeObject(binaryDescriptor);
 

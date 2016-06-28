@@ -221,7 +221,6 @@ public class Tool {
             ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(b));
             Object object = in.readObject();
             in.close();
-
             return object;
         } catch(ClassNotFoundException cnfe) {
             Log.v("fuck", "class not found error", cnfe);

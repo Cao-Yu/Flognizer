@@ -279,12 +279,41 @@ public class ProcessActivity extends ActionBarActivity {
 //                Utils.matToBitmap(foreground, b);
 //                imageView.setImageBitmap(b);
 
+                MatOfKeyPoint keyPoint = new MatOfKeyPoint();
+                // Get a FeatureDetector object
+                FeatureDetector detector =
+                        FeatureDetector.create(FeatureDetector.ORB);
+                // To detect the image
+                detector.detect(img, keyPoint);
+                // Get a descriptorExtractor of two flowers.
+                DescriptorExtractor descriptorExtractor =
+                        DescriptorExtractor.
+                                create(DescriptorExtractor.ORB);
+                Mat d1 = new Mat();
+                descriptorExtractor.compute(img, keyPoint, d1);
+
+                Log.v("fuck", "d1: " + d1);
+
+//                byte[] bytesDescriptor = Tool.serializeObject(d1);
+//                Log.v("fuck", "bd1: " + bytesDescriptor.length);
+//
+//                byte[] bytesDescriptor2 = singleton.testDB(bytesDescriptor);
+//
+//                Log.v("fuck", "bd2: " + bytesDescriptor2.length);
+//                Mat d2 = (Mat)Tool.deserializeObject(bytesDescriptor2);
+//                Log.v("fuck", "d2: " + d2);
 
 
 
-
-                singleton.getDescriptor(Database.tabelNames[0], 1);
-
+//                Mat des = singleton.getDescriptor(Database.tabelNames[0], 1);
+                for(int i = 1; i < 15; i++) {
+                    Mat refDes = singleton.getDescriptor(Database.tabelNames[0], i);
+                    Log.v("fuck", "refDes: " + refDes);
+                }
+//
+//                double[] r = match2Descriptors(d1, refDes);
+////
+//                Log.v("fuck", "new result: " + r[2]);
                 return true;
             case R.id.menu_match:
 
@@ -596,6 +625,61 @@ public class ProcessActivity extends ActionBarActivity {
 //        singleton.registerFlower(flower);
     }
 
+    private double[] match2Descriptors(Mat descriptor, Mat refDescriptor){
+        // Store the result to be a return value
+        double[] result = {0, 0, 0};
+
+        // get the matcher for BF matching
+        DescriptorMatcher descriptorMatcher =
+                DescriptorMatcher.create(
+                        DescriptorMatcher.BRUTEFORCE_HAMMING);
+
+
+
+        // Declare a mat to contain matches
+        MatOfDMatch matches = new MatOfDMatch();
+
+        // match with normal
+        descriptorMatcher.match(descriptor, refDescriptor, matches);
+
+        double sumOfMatch = 0;
+
+        // to include the matches
+        List<DMatch> matchList = matches.toList();
+
+        // to embrace the good matches
+        List<DMatch> goodMatchList = new ArrayList<DMatch>();
+
+        // Calculate the max and min
+        double max = 0.0;
+        double min = 100.0;
+        for (int i = 0; i < matchList.size(); i++) {
+            Double dist = (double) matchList.get(i).distance;
+            if (dist < min && dist != 0) {
+                min = dist;
+            }
+            if (dist > max) {
+                max = dist;
+            }
+        }
+
+        // select out the good matches
+        for (DMatch match : matches.toList()) {
+            if (match.distance < min * 3) {
+                goodMatchList.add(match);
+                sumOfMatch += match.distance;
+            }
+        }
+
+//        Log.v("fuck", "time per match is: " +
+//                (System.currentTimeMillis() - t0));
+        result[0] = min;
+        result[1] = goodMatchList.size();
+        result[2] = sumOfMatch / goodMatchList.size();
+
+        return result;
+    }
+
     private double[] matchTwoFlowers(Flower flower, Flower refFlower) {
 
 //        long t0 = System.currentTimeMillis();
@@ -641,8 +725,6 @@ public class ProcessActivity extends ActionBarActivity {
             // Use descriptor extractor to get the descriptors
             descriptorExtractor.compute(image, keyPoint, descriptor);
         }
-
-
 
 
         // time ***************************************

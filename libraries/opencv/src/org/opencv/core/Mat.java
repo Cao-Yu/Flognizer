@@ -6,6 +6,7 @@ import java.io.Serializable;
 //javadoc: Mat
 public class Mat implements Serializable{
 
+
     public final long nativeObj;
 
     public Mat(long addr)
