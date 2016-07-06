@@ -155,27 +155,28 @@ public class Singleton {
                             realPath + ids[i] + extension);
 
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            Log.v("fuck", "size: " + baos.size());
 
             Mat m = new Mat();
             Utils.bitmapToMat(bitmap, m);
-
-            // 对 mat 进行提取 descriptor ，
-            // 如果成功，可以取消存储bitmap而直接存储descriptor
-            MatOfKeyPoint keyPoint = new MatOfKeyPoint();
-            // Get a FeatureDetector object
-            FeatureDetector detector =
-                    FeatureDetector.create(FeatureDetector.ORB);
-            // To detect the image
-            detector.detect(m, keyPoint);
-            // Get a descriptorExtractor of two flowers.
-            DescriptorExtractor descriptorExtractor =
-                    DescriptorExtractor.
-                            create(DescriptorExtractor.ORB);
-            Mat d = new Mat();
-            descriptorExtractor.compute(m, keyPoint, d);
-
-            Log.v("fuck", "d: " + d);
-            byte[] bytesDescriptor = Tool.serializeObject(d);
+//
+//            // 对 mat 进行提取 descriptor ，
+//            // 如果成功，可以取消存储bitmap而直接存储descriptor
+//            MatOfKeyPoint keyPoint = new MatOfKeyPoint();
+//            // Get a FeatureDetector object
+//            FeatureDetector detector =
+//                    FeatureDetector.create(FeatureDetector.ORB);
+//            // To detect the image
+//            detector.detect(m, keyPoint);
+//            // Get a descriptorExtractor of two flowers.
+//            DescriptorExtractor descriptorExtractor =
+//                    DescriptorExtractor.
+//                            create(DescriptorExtractor.ORB);
+//            Mat d = new Mat();
+//            descriptorExtractor.compute(m, keyPoint, d);
+//
+//            Log.v("fuck", "d: " + d);
+//            byte[] bytesDescriptor = Tool.serializeObject(d);
 
 
 
@@ -187,13 +188,12 @@ public class Singleton {
             // RGB
             Mat imgToGrab = new Mat();
             Imgproc.cvtColor(m, imgToGrab, Imgproc.COLOR_RGBA2RGB);
-//            Tool.colorClassification(imgToGrab);
             Tool.colorSimple(imgToGrab);
 
             byte[] binaryBitmap = baos.toByteArray();
 
-//            cv.put("bitmap", binaryBitmap);
-            cv.put("descriptor", bytesDescriptor);
+            cv.put("bitmap", binaryBitmap);
+//            cv.put("descriptor", bytesDescriptor);
 
             try {
                 baos.flush();
@@ -354,17 +354,17 @@ public class Singleton {
 ////            m.get(i, 1)[0] = sList.get(i);
 //        }
 
-        for(int i = 0; i < 60; i++){
-            Log.v("fuck", "R: " + rList.get(i));
-        }
-
-        for(int i = 0; i < 60; i++){
-            Log.v("fuck", "G: " + gList.get(i));
-        }
-
-        for(int i = 0; i < 60; i++){
-            Log.v("fuck", "B: " + bList.get(i));
-        }
+//        for(int i = 0; i < 60; i++){
+//            Log.v("fuck", "R: " + rList.get(i));
+//        }
+//
+//        for(int i = 0; i < 60; i++){
+//            Log.v("fuck", "G: " + gList.get(i));
+//        }
+//
+//        for(int i = 0; i < 60; i++){
+//            Log.v("fuck", "B: " + bList.get(i));
+//        }
 
 //        Tool.kmeans(m);
 

@@ -185,7 +185,6 @@ public class ProcessActivity extends ActionBarActivity {
 //                        selectedImage.getWidth(), CvType.CV_32F);
 
                 Utils.bitmapToMat(selectedImage, img);
-                Log.v("fuck", "img type: " + img.type());
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -379,7 +378,7 @@ public class ProcessActivity extends ActionBarActivity {
                 Toast.makeText(this, "This is a " + result,
                             Toast.LENGTH_LONG).show();
                 Log.v("fuck", "decision is ***************" + result);
-                Log.v("fuck", "time: " + (System.currentTimeMillis() - t));
+                Log.v("fuck", "total time: " + (System.currentTimeMillis() - t));
 
 
                 return true;
@@ -726,22 +725,16 @@ public class ProcessActivity extends ActionBarActivity {
             descriptorExtractor.compute(image, keyPoint, descriptor);
         }
 
-
         // time ***************************************
         long t0 = System.currentTimeMillis();
-
-
-        // time ***************************************
-        long t1 = System.currentTimeMillis() - t0;
-        Log.v("fuck", "t1: " + t1);
 
         // 定义参考 descriptor
         Mat refDescriptor = new Mat();
         descriptorExtractor.compute(refImage, refKeyPoint, refDescriptor);
 
         // time ***************************************
-        long t2 = System.currentTimeMillis() - t0;
-        Log.v("fuck", "t2: " + t2);
+        long t1 = System.currentTimeMillis() - t0;
+        Log.v("fuck", "t1: " + t1);
 
 
         // get the matcher for BF matching
@@ -758,6 +751,9 @@ public class ProcessActivity extends ActionBarActivity {
         // match with normal
         descriptorMatcher.match(descriptor, refDescriptor, matches);
 
+//        // time ***************************************
+//        long t2 = System.currentTimeMillis() - t0;
+//        Log.v("fuck", "t2: " + t2);
 
         double sumOfMatch = 0;
 
