@@ -747,7 +747,6 @@ public class ProcessActivity extends ActionBarActivity {
         // Declare a mat to contain matches
         MatOfDMatch matches = new MatOfDMatch();
 
-
         // match with normal
         descriptorMatcher.match(descriptor, refDescriptor, matches);
 
